@@ -1,16 +1,27 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { toast } from "react-toastify"
 import customFetch from "../../util/axios";
-import { addUserToLocalStorage, getUserFromLocalStorage } from "../../util/localStorage";
+import { addUserToLocalStorage, getUserFromLocalStorage, removeUserFromLocalStorage } from "../../util/localStorage";
 
 const initialState = {
     isLoading: false,
-    user: getUserFromLocalStorage()
+    user: getUserFromLocalStorage(),
+    isSidebarOpen: false
 }
 
 const userSlice = createSlice({
     name: "user",
     initialState,
+    reducers: {
+        toggleSidebar: (state) => {
+            state.isSidebarOpen = !state.isSidebarOpen
+        },
+        logoutUser: (state) => {
+            state.user = null
+            state.isSidebarOpen = false
+            removeUserFromLocalStorage()
+        }
+    },
     extraReducers: (builder) => {
         builder
             .addCase(registerUser.pending, (state) => {
@@ -42,24 +53,24 @@ const userSlice = createSlice({
                 state.isLoading = false;
                 toast.error(payload);
             })
-            // .addCase(updateUser.pending, (state) => {
-            //     state.isLoading = true;
-            // })
-            // .addCase(updateUser.fulfilled, (state, { payload }) => {
-            //     const { user } = payload;
-            //     state.isLoading = false;
-            //     state.user = user;
-            //     addUserToLocalStorage(user);
+        // .addCase(updateUser.pending, (state) => {
+        //     state.isLoading = true;
+        // })
+        // .addCase(updateUser.fulfilled, (state, { payload }) => {
+        //     const { user } = payload;
+        //     state.isLoading = false;
+        //     state.user = user;
+        //     addUserToLocalStorage(user);
 
-            //     toast.success(`User Updated!`);
-            // })
-            // .addCase(updateUser.rejected, (state, { payload }) => {
-            //     state.isLoading = false;
-            //     toast.error(payload);
-            // })
-            // .addCase(clearStore.rejected, () => {
-            //     toast.error('There was an error..');
-            // });
+        //     toast.success(`User Updated!`);
+        // })
+        // .addCase(updateUser.rejected, (state, { payload }) => {
+        //     state.isLoading = false;
+        //     toast.error(payload);
+        // })
+        // .addCase(clearStore.rejected, () => {
+        //     toast.error('There was an error..');
+        // });
     },
 })
 
@@ -85,4 +96,6 @@ export const loginUser = createAsyncThunk(
         }
     }
 )
+
+export const {toggleSidebar,logoutUser} = userSlice.actions
 export default userSlice.reducer
